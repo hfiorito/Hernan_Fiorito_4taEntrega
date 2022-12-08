@@ -40,5 +40,42 @@ namespace Hernan_Fiorito_4taEntrega.Controllers
             }
         }
 
+        [HttpPost]//creo usuario
+        public ActionResult Post([FromBody] Usuario user)
+        {
+            try
+            {
+                Usuario userCreado = repository.crearUsuario(user);
+                return StatusCode(StatusCodes.Status201Created, userCreado);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
+
+        [HttpDelete]//borro usuario
+
+        public ActionResult Delete([FromBody] int id)
+        {
+            try
+            {
+                bool seElimino = repository.eliminarUsuario(id);
+                if (seElimino)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
     }
 }

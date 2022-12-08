@@ -92,6 +92,127 @@ namespace Hernan_Fiorito_4taEntrega.Repositories
             }
         }
 
+        //Obtener producto vendido por id
+        public ProductoVendido obtenerProductoVendido(long id)
+        {
+            if (conexion == null)
+            {
+                throw new Exception("Conexión no establecida");
+            }
+            try
+            {
+                using (SqlCommand cmd = new SqlCommand("SELECT * FROM ProductoVendido WHERE id = @id", conexion))
+                {
+                    conexion.Open();
+                    cmd.Parameters.Add(new SqlParameter("id", SqlDbType.BigInt) { Value = id });
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            reader.Read();
+                            ProductoVendido productoVendido = obtenerPrductoVendidoDesdeReader(reader);
+                            return productoVendido;
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                conexion.Close();
+            }
+        }
+
+        // obtener producto vendido desde id
+
+        public ProductoVendido? actualizarProductoVendido(long id, ProductoVendido productoVActualizar)
+        {
+            if (conexion == null)
+            {
+                throw new Exception("Conexión no establecida");
+            }
+            try
+            {
+                ProductoVendido? producto = obtenerProductoVendido(id);
+                if (producto == null)
+                {
+                    return null;
+                }
+                List<string> camposAActualizar = new List<string>();
+                if (producto.idProducto != productoVActualizar.idProducto && productoVActualizar.idProducto > 0)
+                {
+                    camposAActualizar.Add("idProducto = @idProducto");
+                    producto.idProducto = productoVActualizar.idProducto;
+                }
+                if (producto.stock != productoVActualizar.stock && productoVActualizar.stock > 0)
+                {
+                    camposAActualizar.Add(" stock = @stock");
+                    producto.stock = productoVActualizar.stock;
+                }
+                if (producto.idVenta != productoVActualizar.idVenta && productoVActualizar.idVenta > 0)
+                {
+                    camposAActualizar.Add("idVenta = @idVenta");
+                    producto.idVenta = productoVActualizar.idVenta;
+                }
+               
+                if (camposAActualizar.Count == 0)
+                {
+                    throw new Exception("No new fields to update");
+                }
+                using (SqlCommand cmd = new SqlCommand($"UPDATE ProductoVendido SET {String.Join(", ", camposAActualizar)} WHERE id = @id", conexion))
+                {
+                    
+                    cmd.Parameters.Add(new SqlParameter("idProducto", SqlDbType.Int) { Value = productoVActualizar.idProducto });
+                    cmd.Parameters.Add(new SqlParameter("idVenta", SqlDbType.BigInt) { Value = productoVActualizar.idVenta });
+                    cmd.Parameters.Add(new SqlParameter("stock", SqlDbType.Int) { Value = productoVActualizar.stock });
+                    cmd.Parameters.Add(new SqlParameter("id", SqlDbType.BigInt) { Value = id });
+                    conexion.Open();
+                    cmd.ExecuteNonQuery();
+                    return producto;
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                conexion.Close();
+            }
+        }
+
+
+        public bool eliminarProductoVendido(int id)
+        {
+            if (conexion == null)
+            {
+                throw new Exception("Conexión no establecida");
+            }
+            try
+            {
+                int filasAfectadas = 0;
+                using (SqlCommand mcd = new SqlCommand("DELETE FROM ProductoVendido WHERE id = @id", conexion))
+                {
+                    conexion.Open();
+                    mcd.Parameters.Add(new SqlParameter("id", SqlDbType.BigInt) { Value = id });
+                    filasAfectadas = mcd.ExecuteNonQuery();
+                }
+                conexion.Close();
+                return filasAfectadas > 0;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
         private ProductoVendido obtenerPrductoVendidoDesdeReader(SqlDataReader reader)
         {
             ProductoVendido prodV = new ProductoVendido();

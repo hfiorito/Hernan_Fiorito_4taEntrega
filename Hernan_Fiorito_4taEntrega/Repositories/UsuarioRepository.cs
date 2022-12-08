@@ -170,6 +170,62 @@ namespace Hernan_Fiorito_4taEntrega.Repositories
                 conexion.Close();
             }
         }
+
+        public Usuario crearUsuario(Usuario user)
+        {
+            if (conexion == null)
+            {
+                throw new Exception("Conexión no establecida");
+            }
+            try
+            {
+                using (SqlCommand cmd = new SqlCommand("INSERT INTO Usuario(Nombre, Apellido, NombreUsuario, Contraseña, Mail) VALUES (@nombre, @apellido, @nombreUsuario, @contrasenia, @mail); SELECT @@Identity", conexion))
+                {
+                    conexion.Open();
+                    cmd.Parameters.Add(new SqlParameter("Nombre", SqlDbType.VarChar) { Value = user.nombre });
+                    cmd.Parameters.Add(new SqlParameter("Apellido", SqlDbType.VarChar) { Value = user.apellido });
+                    cmd.Parameters.Add(new SqlParameter("NombreUsuario", SqlDbType.VarChar) { Value = user.nombreUsuario });
+                    cmd.Parameters.Add(new SqlParameter("Contraseña", SqlDbType.VarChar) { Value = user.contrasenia });
+                    cmd.Parameters.Add(new SqlParameter("Mail", SqlDbType.VarChar) { Value = user.mail });
+                    user.id = long.Parse(cmd.ExecuteScalar().ToString());
+                    return user;
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                conexion.Close();
+            }
+        }
+
+        public bool eliminarUsuario(int id)
+        {
+            if (conexion == null)
+            {
+                throw new Exception("Conexión no establecida");
+            }
+            try
+            {
+                int filasAfectadas = 0;
+                using (SqlCommand mcd = new SqlCommand("DELETE FROM Usuario WHERE id = @id", conexion))
+                {
+                    conexion.Open();
+                    mcd.Parameters.Add(new SqlParameter("id", SqlDbType.BigInt) { Value = id });
+                    filasAfectadas = mcd.ExecuteNonQuery();
+                }
+                conexion.Close();
+                return filasAfectadas > 0;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+
         private Usuario obtenerUsuarioDesdeReader(SqlDataReader reader)
         {
             Usuario usuario = new Usuario();

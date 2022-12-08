@@ -23,7 +23,7 @@ namespace Hernan_Fiorito_4taEntrega.Controllers
                 return Problem(ex.Message);
             }
         }
-        [HttpPost]
+        [HttpPost]//crear producto vendido
 
         public ActionResult Post([FromBody] ProductoVendido Prodv)
         {
@@ -31,6 +31,45 @@ namespace Hernan_Fiorito_4taEntrega.Controllers
             {
                 ProductoVendido productoVendido = repository.cargarProductoVendido(Prodv);
                 return StatusCode(StatusCodes.Status201Created, productoVendido);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
+
+        [HttpPut("{id}")]//Modificar producto vendido por id
+
+        public ActionResult<ProductoVendido> Put(long id, [FromBody] ProductoVendido prductoVActualizar)
+        {
+            try
+            {
+                ProductoVendido? productoActualizado = repository.actualizarProductoVendido(id, prductoVActualizar);
+
+                return Ok(productoActualizado);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
+        [HttpDelete]//borro producto vendido
+
+        public ActionResult Delete([FromBody] int id)
+        {
+            try
+            {
+                bool seElimino = repository.eliminarProductoVendido(id);
+                if (seElimino)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
             catch (Exception ex)
             {
